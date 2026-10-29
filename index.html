@@ -249,7 +249,7 @@
         <div class="submenu" id="incomeDropdown" style="display: none;">
             <div class="menu-item" onclick="loadIncomeHistory('direct'); toggleMenu();" style="padding-left: 30px; font-size: 13px;"><i class="fa-solid fa-arrow-right" style="font-size:12px;"></i> Direct Income</div>
             <div class="menu-item" onclick="loadIncomeHistory('slot'); toggleMenu();" style="padding-left: 30px; font-size: 13px;"><i class="fa-solid fa-arrow-right" style="font-size:12px;"></i> Slot Income</div>
-            <div class="menu-item" onclick="loadIncomeHistory('upline'); toggleMenu();" style="padding-left: 30px; font-size: 13px;"><i class="fa-solid fa-arrow-right" style="font-size:12px;"></i> Up/Downline</div>
+            <div class="menu-item" onclick="loadIncomeHistory('upline'); toggleMenu();" style="padding-left: 30px; font-size: 13px;"><i class="fa-solid fa-arrow-right" style="font-size:12px;"></i> Up/Downline & Level</div>
         </div>
 
         <div class="menu-item" onclick="switchView('slotsView'); toggleMenu();"><i class="fa-solid fa-cubes"></i> Matrix Slots</div>
@@ -365,6 +365,13 @@
                 <button onclick="exitTeamViewMode()" style="margin-top: 10px; padding: 8px 15px; border-radius: 5px; border: 1px solid var(--gold); background: var(--gold); color: #000; font-weight: bold; cursor: pointer; font-size: 11px;">Back to My Dashboard</button>
             </div>
 
+            <!-- PENDING REBIRTHS LOCK BANNER (Shows only if pendingRebirths > 0) -->
+            <div id="pendingRebirthBanner" style="display: none; background: rgba(16, 185, 129, 0.12); border: 1px solid #10b981; color: #fff; text-align: center; padding: 15px; border-radius: 12px; margin-bottom: 20px;">
+                <h4 style="color: #34d399; font-size: 14px; margin-bottom: 6px;"><i class="fa-solid fa-recycle fa-spin"></i> Pending Rebirths Action Required</h4>
+                <p style="font-size: 11px; color: #ccc; margin-bottom: 12px;">You have <b id="pendingRebirthCountText" style="color: var(--gold);">0</b> pending rebirths to place in your genealogy before rewards unlock.</p>
+                <button class="btn-gold" id="processRebirthBtn" onclick="releaseMyPendingRebirths()" style="padding: 10px 15px; font-size: 13px;">Release Next 40 Rebirths</button>
+            </div>
+
             <div class="profile-card">
                 <div class="profile-header">
                     <div class="avatar"><i class="fa-solid fa-user-astronaut"></i></div>
@@ -373,7 +380,6 @@
                         <h1>ID <span id="displayId">--</span></h1>
                     </div>
                 </div>
-                <!-- UPDATED PROFILE DETAILS WITH RECEIVE ADDRESS & JOINING DATE -->
                 <div class="profile-details">
                     <div class="p-row">
                         <span class="p-label">POL Receive Address</span>
@@ -439,18 +445,23 @@
                     <img src="https://cryptologos.cc/logos/polygon-matic-logo.png" class="pol-logo"> 
                     <span id="totalIncomeDisplay">0.00</span> POL
                 </div>
+                <div class="sub-amt" id="subEarningBreakdown" style="font-size: 11px; color: #34d399; margin-top: 6px;"></div>
                 <i class="fa-solid fa-sack-dollar earning-icon"></i>
             </div>
             
             <div class="action-box">
                 <h4>Hold POL <i class="fa-solid fa-circle-info" style="font-size: 10px;"></i></h4>
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px; gap: 8px; flex-wrap: wrap;">
                     <div style="font-size: 24px; font-weight: bold; color: var(--gold); display: flex; align-items: center; gap: 8px;">
                         <img src="https://cryptologos.cc/logos/polygon-matic-logo.png" class="pol-logo" style="width: 20px; height: 20px;">
                         <span id="holdAmountDisplay">0.0</span>
                     </div>
-                    <button class="btn-gold" id="claimRefundBtn" style="width: auto; padding: 10px 15px; font-size: 12px; margin: 0;" onclick="claimMyRefund()"><i class="fa-solid fa-hand-holding-dollar"></i> Claim Refund</button>
+                    <div style="display: flex; gap: 8px;">
+                        <button class="btn-gold" id="claimEligibleBtn" style="display: none; width: auto; padding: 10px 14px; font-size: 12px; margin: 0; background: linear-gradient(135deg, #34d399, #059669); color: #000;" onclick="claimEligiblePOL()"><i class="fa-solid fa-unlock"></i> Claim Eligible POL</button>
+                        <button class="btn-gold" id="claimRefundBtn" style="width: auto; padding: 10px 15px; font-size: 12px; margin: 0;" onclick="claimMyRefund()"><i class="fa-solid fa-hand-holding-dollar"></i> Claim Refund</button>
+                    </div>
                 </div>
+                <div id="holdBreakdownNote" style="font-size: 11px; color: var(--text-gray); margin-top: 8px; line-height: 1.4;"></div>
             </div>
         </div>
 
@@ -464,7 +475,7 @@
             <div style="display: flex; gap: 10px; margin-bottom: 20px; overflow-x: auto; padding-bottom: 5px;">
                 <button class="btn-outline active-tab" id="tab-direct" style="padding: 8px 12px; font-size: 12px; width: auto; flex-shrink: 0;" onclick="loadIncomeHistory('direct')">Direct</button>
                 <button class="btn-outline" id="tab-slot" style="padding: 8px 12px; font-size: 12px; width: auto; flex-shrink: 0;" onclick="loadIncomeHistory('slot')">Slot Income</button>
-                <button class="btn-outline" id="tab-upline" style="padding: 8px 12px; font-size: 12px; width: auto; flex-shrink: 0;" onclick="loadIncomeHistory('upline')">Up/Downline</button>
+                <button class="btn-outline" id="tab-upline" style="padding: 8px 12px; font-size: 12px; width: auto; flex-shrink: 0;" onclick="loadIncomeHistory('upline')">Up/Downline & Level</button>
             </div>
             
             <div class="activity-list" id="incomeListContainer"></div>
@@ -679,17 +690,31 @@
 
     <!-- MAIN JAVASCRIPT LOGIC -->
     <script>
-        const CONTRACT_ADDRESS = "0x8F9afF47ea1448773Cf84f71C1Af65121275DC9f";
+        // NEW 3RD SMART CONTRACT ADDRESS (PolTitanLive)
+        const CONTRACT_ADDRESS = "0x5b6e6f6562e9535cc179a37cfdc89e5ff322b66a";
+        // OLD 2ND CONTRACT ADDRESS (Used only for historical joining date lookup of migrated IDs)
+        const OLD_CONTRACT_ADDRESS = "0x8F9afF47ea1448773Cf84f71C1Af65121275DC9f";
         
         const CONTRACT_ABI = [
             "function register(address _upline) external payable",
             "function claimRefund() external",
+            "function claimMyEligibleRewards() external",
+            "function processMyPendingRebirths() external",
             "function users(address) external view returns (uint256 id, address wallet, address upline, uint256 directCount, uint256 currentSlot, uint256 holdAmount, bool isRealID, address leftDirect, address rightDirect, uint256 slot2TeamCount)",
             "function idToAddress(uint256) external view returns (address)",
             "function userDirects(address, uint256) external view returns (address)",
             "function slot2Team(address, uint256) external view returns (address)",
             "function slotQueues(uint256, uint256) external view returns (address)",
-            "function totalEarned(address) external view returns (uint256)"
+            "function totalEarned(address) external view returns (uint256)",
+            "function pendingSlotRewards(address, uint256) external view returns (uint256)",
+            "function pendingNetworkReward(address) external view returns (uint256)",
+            "function pendingLevelIncome(address) external view returns (uint256)",
+            "function pendingRebirths(address) external view returns (uint256)",
+            "function completedRebirths(address) external view returns (uint256)",
+            "function receivedRebirths(address) external view returns (uint256)",
+            "function flushedRebirths(address) external view returns (uint256)",
+            "function id4BackpayTarget() external view returns (address)",
+            "function id4BackpayStage() external view returns (uint256)"
         ];
 
         let provider, signer, contract, userAddress, userCurrentSlotNum;
@@ -711,7 +736,6 @@
 
         // =========================================================================
         // PERFORMANCE ENGINE: Dedicated Read-Only RPC & In-Memory Caching
-        // (Keeps Wallet Provider free from lag so buttons & videos never freeze)
         // =========================================================================
         const fastReadProvider = new ethers.providers.JsonRpcProvider("https://polygon-bor-rpc.publicnode.com");
         const fastReadContract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, fastReadProvider);
@@ -731,7 +755,7 @@
             const key = addr.toLowerCase();
             if (!forceRefresh && userCacheMap.has(key)) {
                 const entry = userCacheMap.get(key);
-                if (Date.now() - entry.ts < 60000) return entry.data;
+                if (Date.now() - entry.ts < 30000) return entry.data;
             }
             try {
                 const data = await getReadContractInstance().users(addr);
@@ -795,7 +819,130 @@
             }
         }
 
-        // Video Smoothness Helper: Ensures all logo videos play smoothly without black frames
+        // Exact On-Chain Financial Summary Reader (Works for all 663+ Migrated & New IDs + ID No. 4 Priority Queue)
+        async function fetchExactFinancials(addr, userInfo) {
+            const rc = getReadContractInstance();
+            const cleanAddr = addr.toLowerCase();
+            const directCount = userInfo[3].toNumber();
+            const currentSlot = userInfo[4].toNumber();
+            const boxHoldPol = parseFloat(ethers.utils.formatEther(userInfo[5]));
+
+            const [
+                totalEarnedBN,
+                pendingNetBN,
+                pendingLvlBN,
+                s2BN, s3BN, s4BN, s5BN, s6BN, s7BN,
+                pendingRbBN,
+                completedRbBN,
+                receivedRbBN,
+                id4TargetAddr,
+                id4StageBN
+            ] = await Promise.all([
+                rc.totalEarned(addr).catch(() => ethers.BigNumber.from(0)),
+                rc.pendingNetworkReward(addr).catch(() => ethers.BigNumber.from(0)),
+                rc.pendingLevelIncome(addr).catch(() => ethers.BigNumber.from(0)),
+                rc.pendingSlotRewards(addr, 2).catch(() => ethers.BigNumber.from(0)),
+                rc.pendingSlotRewards(addr, 3).catch(() => ethers.BigNumber.from(0)),
+                rc.pendingSlotRewards(addr, 4).catch(() => ethers.BigNumber.from(0)),
+                rc.pendingSlotRewards(addr, 5).catch(() => ethers.BigNumber.from(0)),
+                rc.pendingSlotRewards(addr, 6).catch(() => ethers.BigNumber.from(0)),
+                rc.pendingSlotRewards(addr, 7).catch(() => ethers.BigNumber.from(0)),
+                rc.pendingRebirths(addr).catch(() => ethers.BigNumber.from(0)),
+                rc.completedRebirths(addr).catch(() => ethers.BigNumber.from(0)),
+                rc.receivedRebirths(addr).catch(() => ethers.BigNumber.from(0)),
+                rc.id4BackpayTarget().catch(() => "0x0000000000000000000000000000000000000000"),
+                rc.id4BackpayStage().catch(() => ethers.BigNumber.from(0))
+            ]);
+
+            const totalEarnedPol = parseFloat(ethers.utils.formatEther(totalEarnedBN));
+            const pendingNetPol = parseFloat(ethers.utils.formatEther(pendingNetBN));
+            const pendingLvlPol = parseFloat(ethers.utils.formatEther(pendingLvlBN));
+
+            const slotRewardsArr = [
+                0, 0,
+                parseFloat(ethers.utils.formatEther(s2BN)),
+                parseFloat(ethers.utils.formatEther(s3BN)),
+                parseFloat(ethers.utils.formatEther(s4BN)),
+                parseFloat(ethers.utils.formatEther(s5BN)),
+                parseFloat(ethers.utils.formatEther(s6BN)),
+                parseFloat(ethers.utils.formatEther(s7BN))
+            ];
+            const pendingSlotPol = slotRewardsArr.reduce((a, b) => a + b, 0);
+
+            // Check ID No. 4 5-Step Priority Queue Share (If Stage 1..5 is still pending)
+            let id4QueuePendingPol = 0;
+            const id4Stage = id4StageBN.toNumber();
+            if (id4TargetAddr && id4TargetAddr !== "0x0000000000000000000000000000000000000000" && id4Stage >= 1 && id4Stage <= 5) {
+                const targetLower = id4TargetAddr.toLowerCase();
+                if (cleanAddr === targetLower && id4Stage <= 5) {
+                    // ID No. 4's 400 POL Slot 3->4 Self Reward waiting at Stage 5
+                    id4QueuePendingPol += 400;
+                } else {
+                    const id4Info = await getCachedUser(id4TargetAddr).catch(() => null);
+                    if (id4Info) {
+                        const id4Upline1 = (id4Info[2] || "").toLowerCase();
+                        // Stage 3: 1st Upline of ID 4 (50 POL)
+                        if (id4Stage <= 3 && id4Upline1 === cleanAddr) {
+                            id4QueuePendingPol += 50;
+                        }
+                        // Stage 4: 2nd Upline of ID 4 (50 POL)
+                        if (id4Stage <= 4 && id4Upline1 && id4Upline1 !== "0x0000000000000000000000000000000000000000") {
+                            const up1Info = await getCachedUser(id4Info[2]).catch(() => null);
+                            if (up1Info && (up1Info[2] || "").toLowerCase() === cleanAddr) {
+                                id4QueuePendingPol += 50;
+                            }
+                        }
+                        // Stage 1: L1 Direct of ID 4 (50 POL / directCount)
+                        if (id4Stage <= 1 && (userInfo[2] || "").toLowerCase() === targetLower) {
+                            const id4DCount = id4Info[3].toNumber();
+                            if (id4DCount > 0) id4QueuePendingPol += (50 / id4DCount);
+                        }
+                    }
+                }
+            }
+
+            // Check if any held rewards are currently eligible to claim right now
+            let claimableNowPol = 0;
+            const pendingRb = pendingRbBN.toNumber();
+            if (pendingRb === 0) {
+                if (directCount >= 2) {
+                    claimableNowPol += pendingNetPol;
+                    if (pendingLvlPol >= 5) claimableNowPol += pendingLvlPol;
+                }
+                const reqMap = { 2: 3, 3: 5, 4: 7, 5: 9, 6: 11, 7: 13 };
+                for (let s = 2; s <= 7; s++) {
+                    if (directCount >= reqMap[s] && slotRewardsArr[s] > 0) {
+                        claimableNowPol += slotRewardsArr[s];
+                    }
+                }
+            }
+
+            // Total Hold POL = Box 1/2 Hold + Pending Slot Rewards + Pending Network + Pending Level (2-18) + ID4 Priority Queue Pending
+            const totalHoldPol = boxHoldPol + pendingSlotPol + pendingNetPol + pendingLvlPol + id4QueuePendingPol;
+
+            // Slot 1 Box 1+2 (60 POL) used for automatic Slot 2 upgrade is also part of overall Matrix turnover
+            const slot1UpgradeCredit = (currentSlot >= 2) ? 60 : boxHoldPol;
+
+            // Total Overall Earning = Paid Out (totalEarned) + Slot 1 Upgrade/Hold Credit + All Pending/Queued Rewards
+            const totalOverallIncome = totalEarnedPol + slot1UpgradeCredit + pendingSlotPol + pendingNetPol + pendingLvlPol + id4QueuePendingPol;
+
+            return {
+                totalOverallIncome,
+                totalEarnedPol,
+                totalHoldPol,
+                boxHoldPol,
+                pendingSlotPol,
+                pendingNetPol,
+                pendingLvlPol,
+                id4QueuePendingPol,
+                claimableNowPol,
+                pendingRebirths: pendingRb,
+                completedRebirths: completedRbBN.toNumber(),
+                receivedRebirths: receivedRbBN.toNumber(),
+                slotRewardsArr
+            };
+        }
+
         function ensureVideosSmooth() {
             document.querySelectorAll('video').forEach(v => {
                 v.muted = true;
@@ -890,7 +1037,6 @@
         }
 
         window.switchView = function(viewId) {
-            // Pause heavy background loops when user switches away from dashboard so UI responds instantly
             if (viewId !== 'dashboardView') {
                 currentStatsFetchId++;
             }
@@ -967,7 +1113,6 @@
             const btn = document.getElementById('teamSearchBtn');
             if(!inputVal) return;
 
-            // Stop background dashboard loop immediately so search is ultra fast
             currentStatsFetchId++;
 
             btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Verifying Team...';
@@ -1048,7 +1193,7 @@
         }
 
         window.goBackInTreeHistory = function() {
-            currentTreeRenderId++; // Cancel any running tree render
+            currentTreeRenderId++;
             if(treeNavigationHistory.length > 1) {
                 treeNavigationHistory.pop(); 
                 let previousState = treeNavigationHistory[treeNavigationHistory.length - 1]; 
@@ -1064,7 +1209,7 @@
         }
 
         function executeTreeLoad(addr, context, pushToHistory) {
-            currentStatsFetchId++; // Free up connections for instant tree load
+            currentStatsFetchId++;
             if(pushToHistory) { 
                 treeNavigationHistory.push({addr: addr, context: context}); 
             }
@@ -1174,40 +1319,12 @@
                     msgBox.innerHTML = `Your current highest active slot is <b style="color:var(--gold);">Slot ${slot}</b>. Keep upgrading for higher limits!`;
                 }
                 else if(action === 'rebirth_details') {
-                    let slot = info[4].toNumber();
-                    let count = 0;
-                    if(slot >= 4) { count = 10; }
-                    if(slot >= 5) { count = 50; }
-                    if(slot >= 6) { count = 210; }
-                    if(slot >= 7) { count = 850; }
-                    
-                    if(count > 0) {
-                        msgBox.innerHTML = `Great! You have generated <b style="color:var(--gold);">${count} Rebirth IDs</b>. These are automatically placed top-to-bottom, left-to-right under your team's empty (A/B) nodes to push them to Slot 2.`;
-                    } else {
-                        msgBox.innerHTML = `You currently have 0 Rebirth IDs. Rebirth generation starts automatically when you reach Slot 4!`;
-                    }
+                    let fin = await fetchExactFinancials(userAddress, info);
+                    msgBox.innerHTML = `Generated Rebirths: <b style="color:var(--gold);">${fin.completedRebirths}</b><br>Received Rebirths in Box 1/2: <b style="color:#34d399;">${fin.receivedRebirths}</b><br>Pending Rebirths: <b style="color:#60a5fa;">${fin.pendingRebirths}</b>`;
                 }
                 else if(action === 'total_earnings') {
-                    let directCount = info[3].toNumber();
-                    let currentSlot = info[4].toNumber();
-                    let calc = 0;
-                    
-                    if(currentSlot >= 2) {
-                        calc += 60;
-                    } else if (currentSlot === 1 && directCount === 1) {
-                        calc += 30;
-                    }
-                    if(directCount > 2) {
-                        calc += ((directCount - 2) * 27);
-                    }
-                    
-                    if(currentSlot >= 3) { calc += 40; }
-                    if(currentSlot >= 4) { calc += 400; }
-                    if(currentSlot >= 5) { calc += 2400; }
-                    if(currentSlot >= 6) { calc += 64800; }
-                    if(currentSlot >= 7) { calc += 2648000; }
-                    
-                    msgBox.innerHTML = `You have earned a total of <b style="color:var(--gold);">${calc} POL</b> so far. Note: Some earnings are held to automatically upgrade you to the next slot.`;
+                    let fin = await fetchExactFinancials(userAddress, info);
+                    msgBox.innerHTML = `Total Earning: <b style="color:var(--gold);">${fin.totalOverallIncome.toFixed(2)} POL</b><br>Paid to Wallet: <b style="color:#34d399;">${fin.totalEarnedPol.toFixed(2)} POL</b><br>Hold / Queued: <b style="color:#f5c518;">${fin.totalHoldPol.toFixed(2)} POL</b>`;
                 }
             } catch(e) {
                 msgBox.innerHTML = "<span style='color:#ff4d4d;'>Error reading contract data. Try again.</span>";
@@ -1223,7 +1340,6 @@
             }
             container.innerHTML = `<div style="padding:30px; text-align:center; color:var(--gold);"><i class="fa-solid fa-spinner fa-spin"></i> Fetching Live Blockchain Data...</div>`;
             
-            // Free Blockscout API (No API key required, unlike deprecated PolygonScan V1)
             const apiUrl = `https://polygon.blockscout.com/api?module=account&action=txlist&address=${userAddress}&startblock=0&endblock=99999999&page=1&offset=20&sort=desc`;
             
             try {
@@ -1233,7 +1349,10 @@
                 if(data.status === "1" && data.result && data.result.length > 0) {
                     let html = `<div class="activity-header"><span>Transaction Detail</span><span>Status</span></div>`;
                     data.result.forEach(tx => {
-                        let isToContract = tx.to && tx.to.toLowerCase() === CONTRACT_ADDRESS.toLowerCase();
+                        let isToContract = tx.to && (
+                            tx.to.toLowerCase() === CONTRACT_ADDRESS.toLowerCase() ||
+                            tx.to.toLowerCase() === OLD_CONTRACT_ADDRESS.toLowerCase()
+                        );
                         let txType = isToContract ? "Smart Contract Interaction" : (tx.value > 0 ? "Transfer (Sent/Received)" : "Transaction");
                         let valPol = (tx.value / 1e18).toFixed(2);
                         if (isToContract && valPol == "30.00") {
@@ -1270,7 +1389,7 @@
                 container.innerHTML = `
                 <div style="padding:20px; text-align:center;">
                     <p style="color:#ff4d4d; font-size:12px; margin-bottom:15px;">API Error or Rate Limit.</p>
-                    <a href="https://polygonscan.com/address/${userAddress}#tokentxns" target="_blank" class="btn-outline" style="text-decoration:none; display:inline-block;">View Manually on PolygonScan</a>
+                    <a href="https://polygonscan.com/address/${userAddress}" target="_blank" class="btn-outline" style="text-decoration:none; display:inline-block;">View Manually on PolygonScan</a>
                 </div>`;
             }
         }
@@ -1373,7 +1492,6 @@
             if (renderId !== currentTreeRenderId) return '';
             childInfos.sort((a, b) => a[0].toNumber() - b[0].toNumber());
 
-            // Fetch all subtrees in parallel instead of waiting one by one!
             let subTrees = await Promise.all(
                 childInfos.map(cInfo => buildUnilevelTree(cInfo[1], level + 1, renderId))
             );
@@ -1516,7 +1634,6 @@
                 let indexFound = false;
                 const BATCH_SIZE = 25;
 
-                // Parallel Batched Queue Search (25x faster than sequential loop)
                 for(let i=0; i<1000; i += BATCH_SIZE) {
                     if (myRenderId !== currentTreeRenderId) return;
                     let batchPromises = [];
@@ -1597,10 +1714,9 @@
             document.getElementById('tab-upline').classList.remove('active-tab');
             document.getElementById(`tab-${type}`).classList.add('active-tab');
 
-            // Set Title Immediately on click so it never lags or mismatches
             if (type === 'direct') document.getElementById('incomeViewTitle').innerText = "Direct Income History";
             else if (type === 'slot') document.getElementById('incomeViewTitle').innerText = "Slot Rewards History";
-            else if (type === 'upline') document.getElementById('incomeViewTitle').innerText = "Up/Downline Income";
+            else if (type === 'upline') document.getElementById('incomeViewTitle').innerText = "Up/Downline & Level Income";
 
             let container = document.getElementById('incomeListContainer');
             container.innerHTML = `<div style="color: var(--gold); padding: 30px; text-align: center;"><i class="fa-solid fa-spinner fa-spin"></i> Processing Blockchain Data...</div>`;
@@ -1608,13 +1724,14 @@
             try {
                 let myInfo = await getCachedUser(userAddress);
                 if (myLoadId !== currentIncomeLoadId) return;
+                let fin = await fetchExactFinancials(userAddress, myInfo);
+                if (myLoadId !== currentIncomeLoadId) return;
 
                 let html = `<div class="activity-header"><span>Details & Source</span><span>Amount (POL)</span></div>`;
                 let count = 0;
 
                 if(type === 'direct') {
                     let dCount = myInfo[3].toNumber();
-                    
                     let promises = [];
                     for(let i=0; i<dCount; i++) {
                         promises.push(getCachedDirect(userAddress, i).then(addr => addr ? getCachedUser(addr) : null));
@@ -1623,45 +1740,48 @@
                     if (myLoadId !== currentIncomeLoadId) return;
 
                     for(let i=0; i<directs.length; i++) {
-                        let idLabel = `ID ${directs[i][0].toNumber()}`;
+                        let dIdNum = directs[i][0].toNumber();
+                        let idLabel = `ID ${dIdNum}`;
                         
                         if(i === 0 || i === 1) {
-                            html += buildIncomeItem(idLabel, `Hold for Slot 2`, "30.00", "30.00", '<i class="fa-solid fa-pause"></i>', "#f5c518");
+                            let isStillHeld = (myInfo[4].toNumber() === 1) ? "30.00" : "0.00 (Used for Slot 2)";
+                            html += buildIncomeItem(idLabel, `Box ${i+1} Slot 2 Upgrade Fund`, "30.00", isStillHeld, '<i class="fa-solid fa-boxes-stacked"></i>', "#f5c518");
                         } else {
-                            html += buildIncomeItem(idLabel, `Direct Credit`, "27.00", "0.00", '<i class="fa-solid fa-user-check"></i>', "#34d399");
+                            // Migrated IDs (<= 663) gave 27 POL (90%); new 3rd contract IDs (> 663) give 15 POL (50%) + 12 POL Level 2-18
+                            let directPol = (dIdNum <= 663) ? "27.00" : "15.00";
+                            html += buildIncomeItem(idLabel, `Direct Sponsor Reward`, directPol, "0.00", '<i class="fa-solid fa-user-check"></i>', "#34d399");
                         }
                         count++;
                     }
                 } else if (type === 'slot') {
                     let currentSlot = myInfo[4].toNumber();
-                    
-                    if(currentSlot >= 3) { 
-                        html += buildIncomeItem("Matrix System", "Slot 2 Reward (Upgraded to Slot 3)", "40.00", "0.00", '<i class="fa-solid fa-cubes"></i>', "#f5c518"); 
-                        count++; 
+                    const slotAmounts = { 2: 40, 3: 400, 4: 2400, 5: 64800, 6: 2648000 };
+                    for (let s = 2; s <= 6; s++) {
+                        if (currentSlot >= s + 1) {
+                            let heldForSlot = fin.slotRewardsArr[s] || 0;
+                            // Check if ID No. 4's Slot 3->4 (400 POL) is in priority queue
+                            if (s === 3 && fin.id4QueuePendingPol >= 400) heldForSlot = 400;
+                            html += buildIncomeItem(
+                                "Matrix System",
+                                `Slot ${s} Reward (Upgraded to Slot ${s+1})`,
+                                slotAmounts[s].toFixed(2),
+                                heldForSlot.toFixed(2),
+                                '<i class="fa-solid fa-cubes"></i>',
+                                "#f5c518"
+                            );
+                            count++;
+                        }
                     }
-                    if(currentSlot >= 4) { 
-                        html += buildIncomeItem("Matrix System", "Slot 3 Reward (Upgraded to Slot 4)", "400.00", "0.00", '<i class="fa-solid fa-cubes"></i>', "#f5c518"); 
-                        count++; 
-                    }
-                    if(currentSlot >= 5) { 
-                        html += buildIncomeItem("Matrix System", "Slot 4 Reward (Upgraded to Slot 5)", "2400.00", "0.00", '<i class="fa-solid fa-cubes"></i>', "#f5c518"); 
-                        count++; 
-                    }
-                    if(currentSlot >= 6) { 
-                        html += buildIncomeItem("Matrix System", "Slot 5 Reward (Upgraded to Slot 6)", "64800.00", "0.00", '<i class="fa-solid fa-cubes"></i>', "#f5c518"); 
-                        count++; 
-                    }
-                    if(currentSlot >= 7) { 
-                        html += buildIncomeItem("Matrix System", "Slot 6 Reward (Upgraded to Slot 7)", "2648000.00", "0.00", '<i class="fa-solid fa-cubes"></i>', "#f5c518"); 
-                        count++; 
-                    }
-                    
                 } else if (type === 'upline') {
-                    if(myInfo[6] === false) { 
-                        html += buildIncomeItem("Rebirth System", "Matrix Re-entry Bonus", "30.00", "0.00", '<i class="fa-solid fa-arrow-trend-up"></i>', "#60a5fa"); 
+                    if (fin.pendingLvlPol > 0) {
+                        html += buildIncomeItem("Level 2 - 18 Network", "18-Level Affiliate Income (Releases at 5 POL & 2 Directs)", fin.pendingLvlPol.toFixed(2), fin.pendingLvlPol.toFixed(2), '<i class="fa-solid fa-layer-group"></i>', "#60a5fa");
                         count++;
                     }
-                    
+                    if (fin.pendingNetPol > 0) {
+                        html += buildIncomeItem("Network Pool", "Held Upline/Downline Reward (Requires 2 Directs)", fin.pendingNetPol.toFixed(2), fin.pendingNetPol.toFixed(2), '<i class="fa-solid fa-hourglass-half"></i>', "#f5c518");
+                        count++;
+                    }
+
                     let dCount = myInfo[3].toNumber();
                     let dPromises = [];
                     for(let i=0; i<dCount; i++) {
@@ -1676,24 +1796,25 @@
                     ]);
                     if (myLoadId !== currentIncomeLoadId) return;
 
+                    // 1. Direct Downlines (1st Upline Reward of 50 / 500 / 5000 / 50000 POL)
                     for(let dInfo of directInfos) {
                         if (!dInfo) continue;
                         let dSlot = dInfo[4].toNumber();
                         let dId = dInfo[0].toNumber();
-                        if(dSlot >= 4) { html += buildIncomeItem(`Downline ID ${dId}`, "Level 1 Pool Reward (Slot 4)", "50.00", "0.00", '<i class="fa-solid fa-arrow-up"></i>', "#f5c518"); count++; }
-                        if(dSlot >= 5) { html += buildIncomeItem(`Downline ID ${dId}`, "Level 1 Pool Reward (Slot 5)", "500.00", "0.00", '<i class="fa-solid fa-arrow-up"></i>', "#f5c518"); count++; }
-                        if(dSlot >= 6) { html += buildIncomeItem(`Downline ID ${dId}`, "Level 1 Pool Reward (Slot 6)", "5000.00", "0.00", '<i class="fa-solid fa-arrow-up"></i>', "#f5c518"); count++; }
-                        if(dSlot >= 7) { html += buildIncomeItem(`Downline ID ${dId}`, "Level 1 Pool Reward (Slot 7)", "50000.00", "0.00", '<i class="fa-solid fa-arrow-up"></i>', "#f5c518"); count++; }
+                        if(dSlot >= 4) { html += buildIncomeItem(`Downline ID ${dId}`, "1st Upline Reward (From Downline Slot 3->4)", "50.00", "0.00", '<i class="fa-solid fa-arrow-up"></i>', "#f5c518"); count++; }
+                        if(dSlot >= 5) { html += buildIncomeItem(`Downline ID ${dId}`, "1st Upline Reward (From Downline Slot 4->5)", "500.00", "0.00", '<i class="fa-solid fa-arrow-up"></i>', "#f5c518"); count++; }
+                        if(dSlot >= 6) { html += buildIncomeItem(`Downline ID ${dId}`, "1st Upline Reward (From Downline Slot 5->6)", "5000.00", "0.00", '<i class="fa-solid fa-arrow-up"></i>', "#f5c518"); count++; }
+                        if(dSlot >= 7) { html += buildIncomeItem(`Downline ID ${dId}`, "1st Upline Reward (From Downline Slot 6->7)", "50000.00", "0.00", '<i class="fa-solid fa-arrow-up"></i>', "#f5c518"); count++; }
                     }
                     
+                    // 2. 1st Upline (Level 1 Downline Split Reward of 50 / 500 / 5000 / 50000 POL)
                     if(upInfo) {
                         let upSlot = upInfo[4].toNumber();
-                        let upDCount = upInfo[3].toNumber();
-                        if(upDCount === 0) upDCount = 1; 
-                        if(upSlot >= 4) { html += buildIncomeItem(`Upline ID ${upInfo[0].toNumber()}`, "Upline Pool Reward (Slot 4)", (50/upDCount).toFixed(2), "0.00", '<i class="fa-solid fa-arrow-down"></i>', "#34d399"); count++; }
-                        if(upSlot >= 5) { html += buildIncomeItem(`Upline ID ${upInfo[0].toNumber()}`, "Upline Pool Reward (Slot 5)", (500/upDCount).toFixed(2), "0.00", '<i class="fa-solid fa-arrow-down"></i>', "#34d399"); count++; }
-                        if(upSlot >= 6) { html += buildIncomeItem(`Upline ID ${upInfo[0].toNumber()}`, "Upline Pool Reward (Slot 6)", (5000/upDCount).toFixed(2), "0.00", '<i class="fa-solid fa-arrow-down"></i>', "#34d399"); count++; }
-                        if(upSlot >= 7) { html += buildIncomeItem(`Upline ID ${upInfo[0].toNumber()}`, "Upline Pool Reward (Slot 7)", (50000/upDCount).toFixed(2), "0.00", '<i class="fa-solid fa-arrow-down"></i>', "#34d399"); count++; }
+                        let upDCount = Math.max(1, upInfo[3].toNumber());
+                        if(upSlot >= 4) { html += buildIncomeItem(`Upline ID ${upInfo[0].toNumber()}`, "Level 1 Downline Share (Slot 3->4)", (50/upDCount).toFixed(2), "0.00", '<i class="fa-solid fa-arrow-down"></i>', "#34d399"); count++; }
+                        if(upSlot >= 5) { html += buildIncomeItem(`Upline ID ${upInfo[0].toNumber()}`, "Level 1 Downline Share (Slot 4->5)", (500/upDCount).toFixed(2), "0.00", '<i class="fa-solid fa-arrow-down"></i>', "#34d399"); count++; }
+                        if(upSlot >= 6) { html += buildIncomeItem(`Upline ID ${upInfo[0].toNumber()}`, "Level 1 Downline Share (Slot 5->6)", (5000/upDCount).toFixed(2), "0.00", '<i class="fa-solid fa-arrow-down"></i>', "#34d399"); count++; }
+                        if(upSlot >= 7) { html += buildIncomeItem(`Upline ID ${upInfo[0].toNumber()}`, "Level 1 Downline Share (Slot 6->7)", (50000/upDCount).toFixed(2), "0.00", '<i class="fa-solid fa-arrow-down"></i>', "#34d399"); count++; }
                     }
                 }
 
@@ -1756,7 +1877,7 @@
         async function fetchExtraStats(addr) {
             const myFetchId = ++currentStatsFetchId;
             
-            let cacheKey = "poltitan_stats_" + addr.toLowerCase();
+            let cacheKey = "poltitan_stats_v4_3rd_" + addr.toLowerCase();
             let cachedData = sessionStorage.getItem(cacheKey);
             if (cachedData) {
                 try {
@@ -1772,15 +1893,9 @@
                 let visited = new Set();
                 visited.add(addr.toLowerCase());
                 
-                let mathRebirths = 0; 
+                let totalSubtreeRebirths = 0; 
                 let currentLevel = [addr];
                 let processedCount = 0;
-
-                let rootInfo = await getCachedUser(addr);
-                if (rootInfo && rootInfo[4].toNumber() >= 4) mathRebirths += 10;
-                if (rootInfo && rootInfo[4].toNumber() >= 5) mathRebirths += 40;
-                if (rootInfo && rootInfo[4].toNumber() >= 6) mathRebirths += 160;
-                if (rootInfo && rootInfo[4].toNumber() >= 7) mathRebirths += 640;
 
                 while(currentLevel.length > 0 && processedCount < 5000) { 
                     if (myFetchId !== currentStatsFetchId) return;
@@ -1788,7 +1903,6 @@
                     let nextLevel = [];
                     let uniqueNewChildren = [];
 
-                    // Controlled concurrency (20 per batch) on dedicated read RPC + 10ms UI breathing pause
                     for (let i = 0; i < currentLevel.length; i += 20) {
                         if (myFetchId !== currentStatsFetchId) return;
                         let chunk = currentLevel.slice(i, i + 20);
@@ -1831,7 +1945,6 @@
                                 }
                             }
                         }
-                        // Give browser main thread 10ms breathing room so buttons & video logo never lag
                         await new Promise(r => setTimeout(r, 10));
                     }
 
@@ -1841,12 +1954,9 @@
                             let chunk = uniqueNewChildren.slice(i, i + 20);
                             let childInfos = await Promise.all(chunk.map(c => getCachedUser(c).catch(() => null)));
                             for(let cInfo of childInfos) {
-                                if(cInfo && cInfo[6] === true) { 
-                                    let cSlot = cInfo[4].toNumber();
-                                    if(cSlot >= 4) mathRebirths += 10;
-                                    if(cSlot >= 5) mathRebirths += 40;
-                                    if(cSlot >= 6) mathRebirths += 160;
-                                    if(cSlot >= 7) mathRebirths += 640;
+                                // Count actual Rebirth (Green / Dummy) IDs placed inside this user's entire downline tree
+                                if(cInfo && cInfo[6] === false) { 
+                                    totalSubtreeRebirths++;
                                 }
                             }
                             await new Promise(r => setTimeout(r, 10));
@@ -1858,23 +1968,23 @@
                     processedCount += currentLevel.length;
                     currentLevel = nextLevel;
                     
-                    myReceivedRebirthsCount = mathRebirths;
+                    myReceivedRebirthsCount = totalSubtreeRebirths;
                     
                     document.getElementById('displayTotalTeam').innerText = teamSet.size;
-                    document.getElementById('displayReceivedRebirths').innerText = mathRebirths;
+                    document.getElementById('displayReceivedRebirths').innerText = totalSubtreeRebirths;
                     
-                    sessionStorage.setItem(cacheKey, JSON.stringify({teamSize: teamSet.size, rebirths: mathRebirths}));
+                    sessionStorage.setItem(cacheKey, JSON.stringify({teamSize: teamSet.size, rebirths: totalSubtreeRebirths}));
                 }
 
                 if (myFetchId === currentStatsFetchId && processedCount === 1 && currentLevel.length === 0) {
                     document.getElementById('displayTotalTeam').innerText = teamSet.size;
-                    document.getElementById('displayReceivedRebirths').innerText = mathRebirths;
+                    document.getElementById('displayReceivedRebirths').innerText = totalSubtreeRebirths;
                 }
             } catch(e){}
         }
 
         // =========================================================================
-        // 100% ACCURATE BLOCKCHAIN JOINING DATE ENGINE (Fixes "13 Oct 2026" Bug)
+        // 100% ACCURATE BLOCKCHAIN JOINING DATE ENGINE (Checks 2nd & 3rd Contract)
         // =========================================================================
         function formatBlockchainTimestamp(tsSeconds) {
             const date = new Date(Number(tsSeconds) * 1000);
@@ -1910,11 +2020,13 @@
 
         async function fetchJoiningDate(addr) {
             const cleanAddr = addr.toLowerCase();
-            const cacheKey = "poltitan_joindate_v3_" + cleanAddr;
+            const cacheKey = "poltitan_joindate_v4_" + cleanAddr;
             const savedDate = localStorage.getItem(cacheKey);
             if (savedDate) return savedDate;
 
-            // Layer 1: Blockscout Polygon API (Direct & Internal Transactions - No API Key Needed)
+            const newC = CONTRACT_ADDRESS.toLowerCase();
+            const oldC = OLD_CONTRACT_ADDRESS.toLowerCase();
+
             try {
                 const [txRes, intRes] = await Promise.all([
                     fetch(`https://polygon.blockscout.com/api?module=account&action=txlist&address=${cleanAddr}&startblock=0&endblock=99999999&page=1&offset=50&sort=asc`).then(r => r.json()).catch(() => null),
@@ -1925,10 +2037,9 @@
 
                 if (txRes && txRes.status === "1" && Array.isArray(txRes.result)) {
                     for (let tx of txRes.result) {
-                        if (tx.isError === "0" && (
-                            (tx.to && tx.to.toLowerCase() === CONTRACT_ADDRESS.toLowerCase()) ||
-                            (tx.from && tx.from.toLowerCase() === CONTRACT_ADDRESS.toLowerCase())
-                        )) {
+                        const toAddr = (tx.to || "").toLowerCase();
+                        const fromAddr = (tx.from || "").toLowerCase();
+                        if (tx.isError === "0" && (toAddr === newC || fromAddr === newC || toAddr === oldC || fromAddr === oldC)) {
                             let ts = parseInt(tx.timeStamp);
                             if (ts > 0 && ts < earliestTs) earliestTs = ts;
                         }
@@ -1937,10 +2048,9 @@
 
                 if (intRes && intRes.status === "1" && Array.isArray(intRes.result)) {
                     for (let tx of intRes.result) {
-                        if (
-                            (tx.to && tx.to.toLowerCase() === CONTRACT_ADDRESS.toLowerCase()) ||
-                            (tx.from && tx.from.toLowerCase() === CONTRACT_ADDRESS.toLowerCase())
-                        ) {
+                        const toAddr = (tx.to || "").toLowerCase();
+                        const fromAddr = (tx.from || "").toLowerCase();
+                        if (toAddr === newC || fromAddr === newC || toAddr === oldC || fromAddr === oldC) {
                             let ts = parseInt(tx.timeStamp);
                             if (ts > 0 && ts < earliestTs) earliestTs = ts;
                         }
@@ -1954,7 +2064,6 @@
                 }
             } catch (e) {}
 
-            // Layer 2: On-Chain Archive Binary Search (Finds exact registration block for Rebirth / Virtual / Owner-registered IDs)
             try {
                 const latestBlock = await fastReadProvider.getBlockNumber();
                 let low = await getContractDeployBlock(latestBlock);
@@ -2013,7 +2122,6 @@
 
                 if (userId > 0 && userInfo) {
                     document.getElementById('displayId').innerText = userId;
-                    
                     document.getElementById('displayReceiveAddr').innerHTML = userAddress.substring(0, 10) + "..." + userAddress.substring(34) + ' <i class="fa-regular fa-copy" style="color:var(--gold); margin-left:5px;"></i>';
                     
                     const targetDateAddr = userAddress;
@@ -2039,58 +2147,66 @@
                     let directCount = userInfo[3].toNumber();
                     document.getElementById('displayDirects').innerText = directCount;
                     
+                    let currentSlot = userInfo[4].toNumber();
+                    userCurrentSlotNum = currentSlot;
+                    document.getElementById('displayCurrentSlot').innerText = userCurrentSlotNum;
+
                     document.getElementById('displayTotalTeam').innerHTML = '<i class="fa-solid fa-spinner fa-spin" style="font-size: 14px;"></i>';
                     document.getElementById('displayRebirths').innerHTML = '<i class="fa-solid fa-spinner fa-spin" style="font-size: 14px;"></i>';
                     document.getElementById('displayReceivedRebirths').innerHTML = '<i class="fa-solid fa-spinner fa-spin" style="font-size: 14px;"></i>';
                     
+                    // Fetch exact On-Chain Earnings, Holds, Rebirths & Priority Queue Status
+                    fetchExactFinancials(userAddress, userInfo).then(fin => {
+                        if (myDashId !== currentDashboardFetchId) return;
+
+                        document.getElementById('displayRebirths').innerText = fin.completedRebirths;
+                        document.getElementById('totalIncomeDisplay').innerText = fin.totalOverallIncome.toFixed(2);
+                        document.getElementById('holdAmountDisplay').innerText = fin.totalHoldPol.toFixed(1);
+
+                        // Sub-earning breakdown under Total Earning
+                        const subBreakEl = document.getElementById('subEarningBreakdown');
+                        if (subBreakEl) {
+                            subBreakEl.innerText = `Wallet Paid: ${fin.totalEarnedPol.toFixed(2)} POL | Hold/Queue: ${fin.totalHoldPol.toFixed(2)} POL`;
+                        }
+
+                        // Hold breakdown note
+                        const holdNoteEl = document.getElementById('holdBreakdownNote');
+                        if (holdNoteEl) {
+                            let parts = [];
+                            if (fin.boxHoldPol > 0) parts.push(`Slot 1 Box Hold: ${fin.boxHoldPol.toFixed(1)} POL`);
+                            if (fin.pendingSlotPol > 0) parts.push(`Slot Reward Hold: ${fin.pendingSlotPol.toFixed(1)} POL`);
+                            if (fin.pendingNetPol > 0) parts.push(`Up/Downline Hold: ${fin.pendingNetPol.toFixed(1)} POL`);
+                            if (fin.pendingLvlPol > 0) parts.push(`Level 2-18 Hold: ${fin.pendingLvlPol.toFixed(2)} POL`);
+                            if (fin.id4QueuePendingPol > 0) parts.push(`Priority Queue: ${fin.id4QueuePendingPol.toFixed(1)} POL`);
+                            holdNoteEl.innerText = parts.length > 0 ? parts.join(" • ") : "";
+                        }
+
+                        // Show Pending Rebirth Banner if user has pendingRebirths > 0
+                        const rbBanner = document.getElementById('pendingRebirthBanner');
+                        if (rbBanner) {
+                            if (fin.pendingRebirths > 0) {
+                                document.getElementById('pendingRebirthCountText').innerText = fin.pendingRebirths;
+                                rbBanner.style.display = 'block';
+                            } else {
+                                rbBanner.style.display = 'none';
+                            }
+                        }
+
+                        // Show Claim Eligible POL button if user has unlocked rewards ready
+                        const claimElBtn = document.getElementById('claimEligibleBtn');
+                        if (claimElBtn) {
+                            if (!isViewOnly && fin.claimableNowPol > 0) {
+                                claimElBtn.style.display = 'inline-block';
+                            } else {
+                                claimElBtn.style.display = 'none';
+                            }
+                        }
+                    });
+
                     fetchExtraStats(address); 
-                    
-                    let currentSlot = userInfo[4].toNumber();
-                    
-                    let rebirthCount = 0;
-                    if(currentSlot >= 4) { rebirthCount = 10; }
-                    if(currentSlot >= 5) { rebirthCount = 50; }  
-                    if(currentSlot >= 6) { rebirthCount = 210; } 
-                    if(currentSlot >= 7) { rebirthCount = 850; } 
-                    document.getElementById('displayRebirths').innerText = rebirthCount;
-                    
-                    let calculatedIncome = 0;
-                    
-                    if(currentSlot >= 2) {
-                        calculatedIncome += 60;
-                    } else if (currentSlot === 1 && directCount === 1) {
-                        calculatedIncome += 30;
-                    }
-                    if(directCount > 2) {
-                        calculatedIncome += ((directCount - 2) * 27);
-                    }
-                    
-                    if(currentSlot >= 3) { calculatedIncome += 40; }
-                    if(currentSlot >= 4) { calculatedIncome += 400; }
-                    if(currentSlot >= 5) { calculatedIncome += 2400; }
-                    if(currentSlot >= 6) { calculatedIncome += 64800; }
-                    if(currentSlot >= 7) { calculatedIncome += 2648000; }
-
-                    document.getElementById('totalIncomeDisplay').innerText = calculatedIncome.toFixed(2);
-                    
-                    let autoHoldAmount = 0;
-                    if(currentSlot === 4 && directCount < 5) { autoHoldAmount = 400; }
-                    if(currentSlot === 5 && directCount < 5) { autoHoldAmount = 2400; }
-                    if(currentSlot === 6 && directCount < 5) { autoHoldAmount = 64800; }
-                    if(currentSlot === 7 && directCount < 5) { autoHoldAmount = 2648000; }
-                    
-                    if(autoHoldAmount === 0 && userInfo[5] > 0) {
-                        autoHoldAmount = parseFloat(ethers.utils.formatEther(userInfo[5]));
-                    }
-
-                    document.getElementById('holdAmountDisplay').innerText = autoHoldAmount.toFixed(1);
-                    
-                    userCurrentSlotNum = currentSlot;
-                    document.getElementById('displayCurrentSlot').innerText = userCurrentSlotNum;
 
                     let slot2TeamCount = userInfo[9].toNumber();
                     let displaySlotLimit = userCurrentSlotNum;
-
                     if(slot2TeamCount >= 4 && displaySlotLimit < 3) { 
                         displaySlotLimit = 3; 
                     }
@@ -2121,6 +2237,48 @@
                 showAlert('authAlert', 'Network Error!', true); 
             }
         }
+
+        window.releaseMyPendingRebirths = async function() {
+            if (isViewOnly) {
+                showCustomAlertModal("Notice", "Action not allowed in view mode!");
+                return;
+            }
+            const btn = document.getElementById('processRebirthBtn');
+            try {
+                btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Releasing 40 Rebirths...';
+                btn.disabled = true;
+                const tx = await contract.processMyPendingRebirths();
+                await tx.wait();
+                showCustomAlertModal("Success", "Rebirth batch processed successfully!");
+                await loadDashboardData(userAddress, false);
+            } catch (err) {
+                showCustomAlertModal("Notice", err.reason || "Transaction failed or cancelled.");
+            } finally {
+                btn.innerHTML = 'Release Next 40 Rebirths';
+                btn.disabled = false;
+            }
+        };
+
+        window.claimEligiblePOL = async function() {
+            if (isViewOnly) {
+                showCustomAlertModal("Notice", "Action not allowed in view mode!");
+                return;
+            }
+            const btn = document.getElementById('claimEligibleBtn');
+            try {
+                btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Claiming...';
+                btn.disabled = true;
+                const tx = await contract.claimMyEligibleRewards();
+                await tx.wait();
+                showCustomAlertModal("Success", "Eligible rewards claimed to your wallet!");
+                await loadDashboardData(userAddress, false);
+            } catch (err) {
+                showCustomAlertModal("Notice", err.reason || "Claim transaction failed.");
+            } finally {
+                btn.innerHTML = '<i class="fa-solid fa-unlock"></i> Claim Eligible POL';
+                btn.disabled = false;
+            }
+        };
 
         window.startNodePress = function(e, addr) {
             pressStartTime = new Date().getTime();
